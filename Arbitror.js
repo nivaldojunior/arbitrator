@@ -2,6 +2,7 @@
 
 const ccxt = require('ccxt');
 const Pair = require('./Pair');
+const Operation = require('./Operation');
 
 const ids = ['mercado', 'btcmarkets', 'acx'];
 const currencies = ['BRL', 'AUD'];
@@ -32,6 +33,7 @@ let permuteExchanges = function (exchanges) {
 
     let exchanges = {};
     let pairs = [];
+    let operations = [];
 
     for (let id of ids) {
 
@@ -52,7 +54,15 @@ let permuteExchanges = function (exchanges) {
     pairs = permuteExchanges(exchanges);
 
     for (let pair of pairs) {
-        pair.getOperations();
+        operations = operations.concat(pair.getOperations());
+    }
+
+    operations.sort(function (a, b) {
+        return (a.spread - b.spread) * -1;
+    });
+
+    for(let operation of operations){
+        console.log(operation.purshase+ '/'+ operation.sale + ' ' + operation.currencieBase + '/' + operation.transacion + '/' + operation.currencieFinal + ' ' + operation.spread + '%');
     }
 
     process.exit();
