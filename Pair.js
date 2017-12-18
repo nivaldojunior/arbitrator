@@ -5,12 +5,10 @@ module.exports = class Pair {
     constructor (marketA, marketB) {
         this.marketA = marketA;
         this.marketB = marketB;
-        this.orderbookA = {};
-        this.orderbookB = {};
     }
 
     async loadOrderbooks() {
-        this.orderbookA = await marketA.exchange.fetchOrderBook(marketA.symbol);
-        this.orderbookB = await marketB.exchange.fetchOrderBook(marketB.symbol);
+        this.marketA.exchange.orderbooks[marketA.symbol] = await marketA.exchange.fetchOrderBook(marketA.symbol);
+        this.marketB.exchange.orderbooks[marketB.symbol] = await marketB.exchange.fetchOrderBook(marketB.symbol);
     }
 }
