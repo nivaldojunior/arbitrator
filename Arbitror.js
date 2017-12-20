@@ -13,13 +13,8 @@ let permuteExchanges = function (exchanges) {
     for (let i = 0; i < ids.length; i++) {
         for (let curriencie of exchanges[ids[i]].symbols) {
             for (let j = i + 1; j < ids.length; j++) {
-                if (i === j)
-                    continue;
-
                 let curriencieB = exchanges[ids[j]].symbols.filter(item => item.includes(curriencie.slice(0, 3)));
-
                 if (curriencieB.length === 1) {
-                    //console.log(exchanges[ids[i]].id + '->' + exchanges[ids[j]].id + '(' + curriencie + '->' + curriencieB + ')');
                     pairs.push(new Pair(exchanges[ids[i]].getMarket(curriencie), exchanges[ids[j]].getMarket(curriencieB)));
                 }
             }
@@ -32,7 +27,7 @@ let permuteExchanges = function (exchanges) {
 (async function main() {
 
     let exchanges = {};
-    let pairs = [];
+    let pairs;
     let operations = [];
 
     for (let id of ids) {
@@ -61,8 +56,9 @@ let permuteExchanges = function (exchanges) {
         return (a.spread - b.spread) * -1;
     });
 
-    for(let operation of operations){
-        console.log(operation.purshase+ '/'+ operation.sale + ' ' + operation.currencieBase + '/' + operation.transacion + '/' + operation.currencieFinal + ' ' + operation.spread + '%');
+    for (let operation of operations) {
+        console.log(operation);
+        //console.log(operation.purshase+ '/'+ operation.sale + ' ' + operation.currencieBase + '/' + operation.transacion + '/' + operation.currencieFinal + ' ' + operation.spread + '%');
     }
 
     process.exit();

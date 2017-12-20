@@ -1,5 +1,7 @@
 "use strict";
 
+const fetch = require('node-fetch');
+
 module.exports = class Operation {
 
     constructor(marketBuy, marketSale) {
@@ -11,12 +13,7 @@ module.exports = class Operation {
         this.overseasBolean = !(this.currencieBase === this.currencieFinal);
         this.rate = 0.0;
         if (this.overseasBolean) {
-            //this.rate = getRate(this.currencieBase, this.currencieFinal);
-            if(this.currencieBase === 'BRL'){
-                this.rate = 0.39;
-            }else{
-                this.rate = 2.50;
-            }
+            this.getRate(this.currencieBase, this.currencieFinal).then(result => this.rate = result);
         }
         this.priceBuy = marketBuy.exchange.orderbooks[marketBuy.symbol].asks[0][0];
         this.priceSell = marketSale.exchange.orderbooks[marketSale.symbol].bids[0][0];
@@ -28,6 +25,10 @@ module.exports = class Operation {
         }
     }
 
-    getRate(currencieBase, currencieFinal) {}
-
+    getRate(currencyBase, currencyFinal) {
+        return fetch('https://api.fixer.io/latest?base=' + currencyBase)
+            .then(resp => resp.json())
+            .then(data => data.rates[currencyFinal])
+            .catch(error => console.log(error));
+    }
 }
