@@ -1,65 +1,58 @@
 "use strict";
 
-const ccxt = require('ccxt');
-const Pair = require('./Pair');
-const Operation = require('./Operation');
+const ccxt      = require('ccxt')
+    , Operation = require('./Operation')
+    , fetch     = require('node-fetch');
 
-const ids = ['mercado', 'btcmarkets', 'acx'];
-const currencies = ['BRL', 'AUD'];
+var fetchCurrencyRate = async function (currency) {
+    return fetch('https://api.fixer.io/latest?base=' + currency)
+        .then(resp => resp.json())
+        .then(data => data.rates)
+}
 
-let permuteExchanges = function (exchanges) {
-    let pairs = [];
+var getCurrenciesRates = async function (currencies) {
+    let currenciesRates = {};
+    for (let currency of currencies) {
+        currenciesRates[currency] = await fetchCurrencyRate(currency);
+    }
+    return currenciesRates;
+};
 
+(async function main() {
+
+    let ids = ['mercado', 'foxbit', 'acx'];
+    let currencies = ['BRL', 'AUD'];
+
+    let exchanges = {};
+    let operations = [];
+    let currenciesRates = {};
+
+    currenciesRates = await getCurrenciesRates(currencies);
+
+    for (let id of ids) {
+        let exchange = new ccxt[id]();
+        exchanges[id] = exchange;
+        await exchange.loadMarkets();
+        //filter only markets have the currencies that I want
+        exchange.symbols = exchange.symbols.filter(symbol => currencies.some(currency => symbol.includes(currency)));
+    }
+
+    //permutate all exchanges in pairs
     for (let i = 0; i < ids.length; i++) {
-        for (let curriencie of exchanges[ids[i]].symbols) {
+        for (let currencyA of exchanges[ids[i]].symbols) {
             for (let j = i + 1; j < ids.length; j++) {
-                let curriencieB = exchanges[ids[j]].symbols.filter(item => item.includes(curriencie.slice(0, 3)));
-                if (curriencieB.length === 1) {
-                    pairs.push(new Pair(exchanges[ids[i]].getMarket(curriencie), exchanges[ids[j]].getMarket(curriencieB)));
+                let currencyB = exchanges[ids[j]].symbols.filter(item => item.includes(currencyA.slice(0, 3)));
+                if (currencyB.length === 1) {
+                    operations.push(new Operation(exchanges[ids[i]].getMarket(currencyA), exchanges[ids[j]].getMarket(currencyB)));
+                    operations.push(new Operation(exchanges[ids[j]].getMarket(currencyB), exchanges[ids[i]].getMarket(currencyA)));
                 }
             }
         }
     }
 
-    return pairs;
-};
-
-(async function main() {
-
-    let exchanges = {};
-    let pairs;
-    let operations = [];
-
-    for (let id of ids) {
-
-        let exchange = new ccxt[id]();
-        exchanges[id] = exchange;
-        await exchange.loadMarkets();
-
-        //filter only markets have the currencies that I want
-        exchange.symbols = exchange.symbols.filter(symbol => currencies.some(currencie => symbol.includes(currencie)));
-
-        //load Orderbooks
-        for (let symbol of exchange.symbols) {
-            exchange.orderbooks[symbol] = await exchange.fetchOrderBook(symbol);
-        }
-    }
-
-    //permutate all exchanges in pairs
-    pairs = permuteExchanges(exchanges);
-
-    for (let pair of pairs) {
-        operations = operations.concat(pair.getOperations());
-    }
-
-    operations.sort(function (a, b) {
-        return (a.spread - b.spread) * -1;
-    });
-
     for (let operation of operations) {
-        console.log(operation);
-        //console.log(operation.purshase+ '/'+ operation.sale + ' ' + operation.currencieBase + '/' + operation.transacion + '/' + operation.currencieFinal + ' ' + operation.spread + '%');
+        await operation.updateSpread(currenciesRates);
+        console.log(operation.purchase.exchange.id+ '/'+ operation.sale.exchange.id + ' ' + operation.currencyBase + '/' + operation.transacion + '/' + operation.currencyFinal + ' ' + operation.priceBuy  + ' ' + operation.priceSell  + ' ' + operation.spread );
     }
 
-    process.exit();
 })();
