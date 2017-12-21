@@ -14,6 +14,7 @@ node_tmp/
 node_modules/
 npm-debug.log.*
 /.awcache/*
+package-lock.json
 
 ######################
 # SASS

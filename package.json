@@ -1,0 +1,26 @@
+{
+  "name": "arbitrator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Arbitror.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nivaldojunior/arbitrator.git"
+  },
+  "author": {
+    "name": "Nivaldo Junior",
+    "email": "nivaldojunior.93@gmail.com",
+    "url": "https://github.com/nivaldojunior"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ccxt": "1.10.437"
+  },
+  "bugs": {
+    "url": "https://github.com/nivaldojunior/arbitrator/issues"
+  },
+  "homepage": "https://github.com/nivaldojunior/arbitrator#readme"
+}

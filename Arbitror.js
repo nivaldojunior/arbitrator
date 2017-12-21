@@ -4,13 +4,13 @@ const ccxt      = require('ccxt')
     , Operation = require('./Operation')
     , fetch     = require('node-fetch');
 
-var fetchCurrencyRate = async function (currency) {
+let fetchCurrencyRate = async function (currency) {
     return fetch('https://api.fixer.io/latest?base=' + currency)
         .then(resp => resp.json())
         .then(data => data.rates)
-}
+};
 
-var getCurrenciesRates = async function (currencies) {
+let getCurrenciesRates = async function (currencies) {
     let currenciesRates = {};
     for (let currency of currencies) {
         currenciesRates[currency] = await fetchCurrencyRate(currency);
@@ -20,7 +20,7 @@ var getCurrenciesRates = async function (currencies) {
 
 (async function main() {
 
-    let ids = ['mercado', 'foxbit', 'acx'];
+    let ids = ['mercado', 'btcmarkets', 'acx'];
     let currencies = ['BRL', 'AUD'];
 
     let exchanges = {};
@@ -52,7 +52,7 @@ var getCurrenciesRates = async function (currencies) {
 
     for (let operation of operations) {
         await operation.updateSpread(currenciesRates);
-        console.log(operation.purchase.exchange.id+ '/'+ operation.sale.exchange.id + ' ' + operation.currencyBase + '/' + operation.transacion + '/' + operation.currencyFinal + ' ' + operation.priceBuy  + ' ' + operation.priceSell  + ' ' + operation.spread );
+        console.log(operation.purchase.exchange.id+ '/'+ operation.sale.exchange.id + ' ' + operation.currencyBase + '/' + operation.transacion + '/' + operation.currencyFinal + ' ' + operation.spread );
     }
 
 })();
