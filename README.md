@@ -13,9 +13,6 @@ git clone https://github.com/nivaldojunior/arbitrator.git
 ```
 ```shell
 npm install
-```
-
-```shell
-node Arbitror.js
+npm start
 ```
 
