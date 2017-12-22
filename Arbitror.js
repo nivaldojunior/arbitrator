@@ -1,8 +1,8 @@
 "use strict";
 
-const ccxt      = require('ccxt')
+const ccxt = require('ccxt')
     , Operation = require('./Operation')
-    , fetch     = require('node-fetch');
+    , fetch = require('node-fetch');
 
 let fetchCurrencyRate = async function (currency) {
     return fetch('https://api.fixer.io/latest?base=' + currency)
@@ -49,10 +49,20 @@ let getCurrenciesRates = async function (currencies) {
             }
         }
     }
-
-    for (let operation of operations) {
-        await operation.updateSpread(currenciesRates);
-        console.log(operation.purchase.exchange.id+ '/'+ operation.sale.exchange.id + ' ' + operation.currencyBase + '/' + operation.transacion + '/' + operation.currencyFinal + ' ' + operation.spread );
+    while (true) {
+        for (let operation of operations) {
+            await operation.updateSpread(currenciesRates);
+        }
+        operations.sort(function (a, b) {
+            return (a.spread - b.spread) * -1;
+        });
+        process.stdout.write("\u001b[2J\u001b[0;0H");
+        for (let operation of operations) {
+            console.log(operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name);
+            console.log(operation.quantity.toPrecision(4) + operation.transacion + '\t\t' + operation.spread.toPrecision(2) + '%');
+        }
     }
+
+    process.exit();
 
 })();

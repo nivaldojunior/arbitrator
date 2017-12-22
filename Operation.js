@@ -13,6 +13,7 @@ module.exports = class Operation {
         this.operationRates = 0.0;
         this.priceSell = 0.0;
         this.priceBuy = 0.0;
+        this.quantity = 0.0;
     }
 
     async updateSpread(currenciesRates) {
@@ -25,8 +26,12 @@ module.exports = class Operation {
         this.sale.exchange.orderbooks[saleSymbol] =
             await this.sale.exchange.fetchOrderBook(saleSymbol);
 
-        this.priceBuy = this.purchase.exchange.orderbooks[purchaseSymbol].asks[0][0];
-        this.priceSell = this.sale.exchange.orderbooks[saleSymbol].bids[0][0];
+        let orderBuy = this.purchase.exchange.orderbooks[purchaseSymbol].asks;
+        let orderSale = this.sale.exchange.orderbooks[saleSymbol].bids;
+
+        this.priceBuy = orderBuy[0][0];
+        this.priceSell = orderSale[0][0];
+        this.quantity = orderBuy[0][1] <= orderSale[0][1] ? orderSale[0][1] : orderBuy[0][1];
 
         if (this.overseasBolean) {
             let rate = currenciesRates[this.currencyBase][this.currencyFinal];
@@ -35,4 +40,4 @@ module.exports = class Operation {
             this.spread = ((this.priceSell / this.priceBuy) - 1.0) * 100.0;
         }
     }
-}
+};
