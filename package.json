@@ -21,7 +21,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ccxt": "1.10.437"
+    "ccxt": "^1.10.967"
   },
   "bugs": {
     "url": "https://github.com/nivaldojunior/arbitrator/issues"

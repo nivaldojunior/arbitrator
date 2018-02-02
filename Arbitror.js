@@ -1,8 +1,8 @@
 "use strict";
 
-const ccxt = require('ccxt')
+const ccxt      = require('ccxt')
     , Operation = require('./Operation')
-    , fetch = require('node-fetch');
+    , fetch     = require('node-fetch');
 
 let fetchCurrencyRate = async function (currency) {
     return fetch('https://api.fixer.io/latest?base=' + currency)
@@ -20,8 +20,10 @@ let getCurrenciesRates = async function (currencies) {
 
 (async function main() {
 
-    let ids = ['mercado', 'btcmarkets', 'acx'];
+    let ids = ['foxbit', 'acx', 'mercado'];
     let currencies = ['BRL', 'AUD'];
+    let currencyDefault = 'BRL';
+    let profitMin = 500;
 
     let exchanges = {};
     let operations = [];
@@ -51,15 +53,25 @@ let getCurrenciesRates = async function (currencies) {
     }
     while (true) {
         for (let operation of operations) {
-            await operation.updateSpread(currenciesRates);
+            await operation.updateSpread(currenciesRates, currencyDefault);
         }
         operations.sort(function (a, b) {
-            return (a.spread - b.spread) * -1;
+            return (a.profitMax - b.profitMax) * -1;
         });
-        process.stdout.write("\u001b[2J\u001b[0;0H");
+        process.stdout.write('\x1B[2J\x1B[0f');
         for (let operation of operations) {
-            console.log(operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name);
-            console.log(operation.quantity.toPrecision(4) + operation.transacion + '\t\t' + operation.spread.toPrecision(2) + '%');
+            if(operation.profitMax > profitMin && operation.currencySell === 'AUD') {
+                console.log(
+                    operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name + ' (' + operation.transacion + ')'
+                    + '\n Quantity      = ' + operation.quantityMax.toFixed(4)
+                    + '\n Price Buy     = ' + operation.priceBuyOrigin.toFixed(2) + ' ' + operation.currencyBuy
+                    + '\n Price Sell    = ' + operation.priceSellOrigin.toFixed(2) + ' ' + operation.currencySell
+                    + '\n Total Buy     = ' + (operation.priceBuyOrigin * operation.quantityMax).toFixed(2) + ' ' + operation.currencyBuy
+                    + '\n Total Venda   = ' + (operation.priceSellOrigin * operation.quantityMax).toFixed(2) + ' ' + operation.currencySell
+                    + '\n AUD/BRL       = ' + currenciesRates['AUD']['BRL']
+                    + '\n Profit        = ' + operation.profitMax.toFixed(2) + ' ' + currencyDefault + '\n'
+                );
+            }
         }
     }
 

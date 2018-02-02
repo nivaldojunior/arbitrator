@@ -6,17 +6,17 @@ module.exports = class Operation {
         this.purchase = marketBuy;
         this.sale = marketSale;
         this.transacion = marketBuy.symbol.toString().slice(0, 3);
-        this.currencyBase = marketBuy.symbol.toString().slice(4, 7);
-        this.currencyFinal = marketSale.symbol.toString().slice(4, 7);
-        this.overseasBolean = !(this.currencyBase === this.currencyFinal);
-        this.spread = 0.0;
-        this.operationRates = 0.0;
-        this.priceSell = 0.0;
-        this.priceBuy = 0.0;
-        this.quantity = 0.0;
+        this.currencyBuy = marketBuy.symbol.toString().slice(4, 7);
+        this.currencySell = marketSale.symbol.toString().slice(4, 7);
+        this.priceBuyOrigin = 0.0;
+        this.priceSellOrigin = 0.0;
+        this.priceBuyDefault = 0.0;
+        this.priceSellDefault = 0.0;
+        this.quantityMax = 0.0;
+        this.profitMax = 0.0
     }
 
-    async updateSpread(currenciesRates) {
+    async updateSpread(currenciesRates, currencyDefault) {
 
         let purchaseSymbol = this.purchase.symbol.toString();
         let saleSymbol = this.sale.symbol.toString();
@@ -29,15 +29,24 @@ module.exports = class Operation {
         let orderBuy = this.purchase.exchange.orderbooks[purchaseSymbol].asks;
         let orderSale = this.sale.exchange.orderbooks[saleSymbol].bids;
 
-        this.priceBuy = orderBuy[0][0];
-        this.priceSell = orderSale[0][0];
-        this.quantity = orderBuy[0][1] <= orderSale[0][1] ? orderSale[0][1] : orderBuy[0][1];
+        this.priceBuyOrigin = orderBuy[0][0];
+        this.priceSellOrigin = orderSale[0][0];
+        this.quantityMax = orderBuy[0][1] <= orderSale[0][1] ? orderSale[0][1] : orderBuy[0][1];
 
-        if (this.overseasBolean) {
-            let rate = currenciesRates[this.currencyBase][this.currencyFinal];
-            this.spread = (((this.priceSell / this.priceBuy) / rate) - 1.0) * 100.0;
-        } else {
-            this.spread = ((this.priceSell / this.priceBuy) - 1.0) * 100.0;
+        let rate = 0.0;
+        this.priceBuyDefault = this.priceBuyOrigin;
+        this.priceSellDefault = this.priceSellOrigin;
+
+        if(this.currencyBuy !== currencyDefault){
+            rate = currenciesRates[this.currencyBuy][currencyDefault];
+            this.priceBuyDefault = this.priceBuyOrigin * rate;
         }
+        if (this.currencySell !== currencyDefault){
+            rate = currenciesRates[this.currencySell][currencyDefault];
+            this.priceSellDefault = this.priceSellOrigin * rate;
+        }
+
+        this.profitMax = (this.priceBuyDefault * this.quantityMax) - (this.priceSellDefault * this.quantityMax);
+
     }
 };
