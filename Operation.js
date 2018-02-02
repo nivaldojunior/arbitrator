@@ -46,7 +46,7 @@ module.exports = class Operation {
             this.priceSellDefault = this.priceSellOrigin * rate;
         }
 
-        this.profitMax = (this.priceBuyDefault * this.quantityMax) - (this.priceSellDefault * this.quantityMax);
+        this.profitMax = (this.priceSellDefault * this.quantityMax) - (this.priceBuyDefault * this.quantityMax);
 
     }
 };

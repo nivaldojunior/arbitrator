@@ -60,7 +60,7 @@ let getCurrenciesRates = async function (currencies) {
         });
         process.stdout.write('\x1B[2J\x1B[0f');
         for (let operation of operations) {
-            if(operation.profitMax > profitMin && operation.currencySell === 'AUD') {
+            if(operation.profitMax > profitMin) {
                 console.log(
                     operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name + ' (' + operation.transacion + ')'
                     + '\n Quantity      = ' + operation.quantityMax.toFixed(4)
