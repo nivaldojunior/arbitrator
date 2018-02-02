@@ -33,18 +33,16 @@ module.exports = class Operation {
         this.priceSellOrigin = orderSale[0][0];
         this.quantityMax = orderBuy[0][1] <= orderSale[0][1] ? orderSale[0][1] : orderBuy[0][1];
 
-        let rate = 0.0;
-        this.priceBuyDefault = this.priceBuyOrigin;
-        this.priceSellDefault = this.priceSellOrigin;
+        this.priceBuyDefault =
+            this.currencyBuy === currencyDefault
+            ? this.priceBuyOrigin
+            : this.priceBuyOrigin * currenciesRates[this.currencyBuy][currencyDefault];
 
-        if(this.currencyBuy !== currencyDefault){
-            rate = currenciesRates[this.currencyBuy][currencyDefault];
-            this.priceBuyDefault = this.priceBuyOrigin * rate;
-        }
-        if (this.currencySell !== currencyDefault){
-            rate = currenciesRates[this.currencySell][currencyDefault];
-            this.priceSellDefault = this.priceSellOrigin * rate;
-        }
+        this.priceSellDefault =
+            this.currencySell === currencyDefault
+            ? this.priceSellOrigin
+            : this.priceSellOrigin * currenciesRates[this.currencySell][currencyDefault];
+
 
         this.profitMax = (this.priceSellDefault * this.quantityMax) - (this.priceBuyDefault * this.quantityMax);
 

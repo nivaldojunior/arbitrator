@@ -62,12 +62,15 @@ let getCurrenciesRates = async function (currencies) {
         for (let operation of operations) {
             if(operation.profitMax > profitMin) {
                 console.log(
-                    operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name + ' (' + operation.transacion + ')'
-                    + '\n Quantity      = ' + operation.quantityMax.toFixed(4)
+                    operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name
+                    + ' (' + operation.transacion + ')'
+                    + '\n Quantity      = ' + operation.quantityMax.toFixed(4) + ' ' + operation.transacion
                     + '\n Price Buy     = ' + operation.priceBuyOrigin.toFixed(2) + ' ' + operation.currencyBuy
                     + '\n Price Sell    = ' + operation.priceSellOrigin.toFixed(2) + ' ' + operation.currencySell
-                    + '\n Total Buy     = ' + (operation.priceBuyOrigin * operation.quantityMax).toFixed(2) + ' ' + operation.currencyBuy
-                    + '\n Total Venda   = ' + (operation.priceSellOrigin * operation.quantityMax).toFixed(2) + ' ' + operation.currencySell
+                    + '\n Total Buy     = ' + (operation.priceBuyOrigin * operation.quantityMax).toFixed(2) + ' '
+                    + operation.currencyBuy
+                    + '\n Total Sell    = ' + (operation.priceSellOrigin * operation.quantityMax).toFixed(2)
+                    + ' ' + operation.currencySell
                     + '\n AUD/BRL       = ' + currenciesRates['AUD']['BRL']
                     + '\n Profit        = ' + operation.profitMax.toFixed(2) + ' ' + currencyDefault + '\n'
                 );
