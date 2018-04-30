@@ -45,8 +45,10 @@ let getCurrenciesRates = async function (currencies) {
             for (let j = i + 1; j < ids.length; j++) {
                 let currencyB = exchanges[ids[j]].symbols.filter(item => item.includes(currencyA.slice(0, 3)));
                 if (currencyB.length === 1) {
-                    operations.push(new Operation(exchanges[ids[i]].getMarket(currencyA), exchanges[ids[j]].getMarket(currencyB)));
-                    operations.push(new Operation(exchanges[ids[j]].getMarket(currencyB), exchanges[ids[i]].getMarket(currencyA)));
+                    operations.push(new Operation(exchanges[ids[i]].getMarket(currencyA),
+                        exchanges[ids[j]].getMarket(currencyB)));
+                    operations.push(new Operation(exchanges[ids[j]].getMarket(currencyB),
+                        exchanges[ids[i]].getMarket(currencyA)));
                 }
             }
         }
@@ -62,14 +64,14 @@ let getCurrenciesRates = async function (currencies) {
         for (let operation of operations) {
             if(operation.profitMax > profitMin) {
                 console.log(
-                    operation.purchase.exchange.name + ' -> ' + operation.sale.exchange.name
+                    operation.marketBuy.exchange.name + ' -> ' + operation.marketSell.exchange.name
                     + ' (' + operation.transacion + ')'
                     + '\n Quantity      = ' + operation.quantityMax.toFixed(4) + ' ' + operation.transacion
-                    + '\n Price Buy     = ' + operation.priceBuyOrigin.toFixed(2) + ' ' + operation.currencyBuy
-                    + '\n Price Sell    = ' + operation.priceSellOrigin.toFixed(2) + ' ' + operation.currencySell
-                    + '\n Total Buy     = ' + (operation.priceBuyOrigin * operation.quantityMax).toFixed(2) + ' '
+                    + '\n Price Buy     = ' + operation.priceBuy.toFixed(2) + ' ' + operation.currencyBuy
+                    + '\n Price Sell    = ' + operation.priceSell.toFixed(2) + ' ' + operation.currencySell
+                    + '\n Total Buy     = ' + (operation.priceBuy * operation.quantityMax).toFixed(2) + ' '
                     + operation.currencyBuy
-                    + '\n Total Sell    = ' + (operation.priceSellOrigin * operation.quantityMax).toFixed(2)
+                    + '\n Total Sell    = ' + (operation.priceSell * operation.quantityMax).toFixed(2)
                     + ' ' + operation.currencySell
                     + '\n AUD/BRL       = ' + currenciesRates['AUD']['BRL']
                     + '\n Profit        = ' + operation.profitMax.toFixed(2) + ' ' + currencyDefault + '\n'
